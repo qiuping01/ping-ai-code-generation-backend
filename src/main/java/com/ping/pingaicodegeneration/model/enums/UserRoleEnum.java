@@ -1,7 +1,9 @@
 package com.ping.pingaicodegeneration.model.enums;
 
 import cn.hutool.core.util.ObjUtil;
+import lombok.Getter;
 
+@Getter
 public enum UserRoleEnum {
 
     USER("用户", "user"),

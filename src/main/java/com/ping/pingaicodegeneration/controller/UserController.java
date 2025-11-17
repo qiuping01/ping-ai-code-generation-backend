@@ -1,6 +1,13 @@
 package com.ping.pingaicodegeneration.controller;
 
 import com.mybatisflex.core.paginate.Page;
+import com.ping.pingaicodegeneration.common.BaseResponse;
+import com.ping.pingaicodegeneration.common.ResultUtils;
+import com.ping.pingaicodegeneration.exception.BusinessException;
+import com.ping.pingaicodegeneration.exception.ErrorCode;
+import com.ping.pingaicodegeneration.exception.ThrowUtils;
+import com.ping.pingaicodegeneration.model.dto.UserRegisterRequest;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ping.pingaicodegeneration.model.entity.User;
 import com.ping.pingaicodegeneration.service.UserService;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 /**
@@ -23,8 +31,23 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
+    @Resource
     private UserService userService;
+
+    /**
+     * 用户注册
+     * @param userRegisterRequest 用户注册请求
+     * @return 用户ID
+     */
+    @PostMapping("/register")
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+        ThrowUtils.throwIf(userRegisterRequest == null, ErrorCode.PARAMS_ERROR);
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+        long result = userService.userRegister(userAccount, userPassword,checkPassword);
+        return ResultUtils.success(result);
+    }
 
     /**
      * 保存用户。
