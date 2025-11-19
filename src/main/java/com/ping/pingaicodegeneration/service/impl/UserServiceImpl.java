@@ -121,6 +121,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
+     * 用户注销
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean userLogout(HttpServletRequest request) {
+        // 先判断用户是否登录
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        ThrowUtils.throwIf(userObj == null, ErrorCode.OPERATION_ERROR, "用户未登录");
+        // 移除登录态
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        return true;
+    }
+
+    /**
      * 用户登录
      *
      * @param userAccount  用户账号
