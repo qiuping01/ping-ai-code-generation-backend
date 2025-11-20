@@ -35,6 +35,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
         <!-- 参考官方文档引入：https://doc.hutool.cn/pages/index/#%F0%9F%8D%8Amaven -->
         <dependency>
             <groupId>cn.hutool</groupId>
