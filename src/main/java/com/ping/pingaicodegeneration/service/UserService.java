@@ -1,9 +1,14 @@
 package com.ping.pingaicodegeneration.service;
 
+import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import com.ping.pingaicodegeneration.model.dto.UserQueryRequest;
 import com.ping.pingaicodegeneration.model.entity.User;
 import com.ping.pingaicodegeneration.model.vo.LoginUserVO;
+import com.ping.pingaicodegeneration.model.vo.UserVO;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 /**
  * 用户 服务层。
@@ -63,5 +68,29 @@ public interface UserService extends IService<User> {
      * @return 脱敏后的登录用户信息
      */
     LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    /**
+     * 获取脱敏后的用户信息
+     *
+     * @param user 用户
+     * @return 脱敏后的用户信息
+     */
+    UserVO getUserVO(User user);
+
+    /**
+     * 获取脱敏后的用户信息列表
+     *
+     * @param userList 用户列表
+     * @return 脱敏后的用户信息列表
+     */
+    List<UserVO> getUserVOList(List<User> userList);
+
+    /**
+     * 根据查询条件构造数据查询参数
+     *
+     * @param userQueryRequest 用户查询请求
+     * @return 数据查询参数
+     */
+    QueryWrapper getUserQueryWrapper(UserQueryRequest userQueryRequest);
 
 }

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -19,6 +20,7 @@ import static com.ping.pingaicodegeneration.exception.ErrorCode.NO_AUTH_ERROR;
 /**
  * 权限校验拦截器
  */
+@Component
 @Aspect
 public class AuthInterceptor {
 

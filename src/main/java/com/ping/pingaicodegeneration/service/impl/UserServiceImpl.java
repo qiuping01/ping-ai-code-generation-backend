@@ -1,14 +1,17 @@
 package com.ping.pingaicodegeneration.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.ping.pingaicodegeneration.exception.ErrorCode;
 import com.ping.pingaicodegeneration.exception.ThrowUtils;
 import com.ping.pingaicodegeneration.mapper.UserMapper;
+import com.ping.pingaicodegeneration.model.dto.UserQueryRequest;
 import com.ping.pingaicodegeneration.model.entity.User;
 import com.ping.pingaicodegeneration.model.enums.UserRoleEnum;
 import com.ping.pingaicodegeneration.model.vo.LoginUserVO;
+import com.ping.pingaicodegeneration.model.vo.UserVO;
 import com.ping.pingaicodegeneration.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
@@ -17,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.ping.pingaicodegeneration.constant.UserConstant.USER_LOGIN_STATE;
 
@@ -104,7 +110,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 获取脱敏登录用户信息
      *
      * @param request 请求
-     * @return  用户信息
+     * @return 用户信息
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
@@ -166,5 +172,63 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         // 5. 返回脱敏后的用户信息
         return this.getLoginUserVO(user);
+    }
+
+    /**
+     * 获取脱敏后的用户信息
+     *
+     * @param user 用户
+     * @return 脱敏后的用户信息
+     */
+    @Override
+    public UserVO getUserVO(User user) {
+        if (user == null) {
+            return null;
+        }
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return userVO;
+    }
+
+    /**
+     * 获取脱敏后的用户信息列表
+     *
+     * @param userList 用户列表
+     * @return 脱敏后的用户信息列表
+     */
+    @Override
+    public List<UserVO> getUserVOList(List<User> userList) {
+        if (CollUtil.isEmpty(userList)) {
+            return new ArrayList<>();
+        }
+        return userList.stream()
+                .map(this::getUserVO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据查询条件构造数据查询参数
+     *
+     * @param userQueryRequest 用户查询请求
+     * @return 数据查询参数
+     */
+    @Override
+    public QueryWrapper getUserQueryWrapper(UserQueryRequest userQueryRequest) {
+        ThrowUtils.throwIf(userQueryRequest == null
+                , ErrorCode.PARAMS_ERROR, "请求参数为空");
+        Long id = userQueryRequest.getId();
+        String userName = userQueryRequest.getUserName();
+        String userAccount = userQueryRequest.getUserAccount();
+        String userProfile = userQueryRequest.getUserProfile();
+        String userRole = userQueryRequest.getUserRole();
+        String sortField = userQueryRequest.getSortField();
+        String sortOrder = userQueryRequest.getSortOrder();
+        return QueryWrapper.create()
+                .eq("id", id)
+                .eq("userRole", userRole)
+                .like("userAccount", userAccount)
+                .like("userName", userName)
+                .like("userProfile", userProfile)
+                .orderBy(sortField, "descend".equals(sortOrder));
     }
 }
