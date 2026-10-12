@@ -23,4 +23,19 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+# langchain4j
+# 注意：api-key 等敏感信息放在 application-local.yml（已 gitignore），本地开发需自行创建
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://api.deepseek.com
+      model-name: deepseek-flash
+      log-requests: true
+      log-responses: true
+      # 结构化输出
+      max-tokens: 8192
+      strict-json-schema: true
+      response-format: json_object
+      max-retries: 1
+
 
