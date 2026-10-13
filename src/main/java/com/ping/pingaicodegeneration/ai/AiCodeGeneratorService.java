@@ -4,6 +4,8 @@ import com.ping.pingaicodegeneration.ai.model.HtmlCodeResult;
 import com.ping.pingaicodegeneration.ai.model.MultiFileCodeResult;
 import dev.langchain4j.service.SystemMessage;
 
+import java.io.File;
+
 public interface AiCodeGeneratorService {
 
     /**
@@ -23,6 +25,5 @@ public interface AiCodeGeneratorService {
      */
     @SystemMessage(fromResource = "prompt/codegen-multi-file-system-prompt.txt")
     MultiFileCodeResult generateMultiFileCode(String userMessage);
-
 
 }
