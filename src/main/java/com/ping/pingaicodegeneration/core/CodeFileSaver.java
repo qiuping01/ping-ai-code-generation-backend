@@ -5,6 +5,8 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ping.pingaicodegeneration.ai.model.HtmlCodeResult;
 import com.ping.pingaicodegeneration.ai.model.MultiFileCodeResult;
+import com.ping.pingaicodegeneration.exception.BusinessException;
+import com.ping.pingaicodegeneration.exception.ErrorCode;
 import com.ping.pingaicodegeneration.model.enums.CodeGenTypeEnum;
 
 import java.io.File;
@@ -49,6 +51,10 @@ public class CodeFileSaver {
      * 写入单个文件
      */
     private static void writeToFile(String dirPath, String filename, String content) {
+        // 内容为空说明 AI 输出缺少该代码块，直接抛出便于定位，避免写入空文件或后续空指针
+        if (StrUtil.isBlank(content)) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "代码内容为空，无法保存文件：" + filename);
+        }
         String filePath = dirPath + File.separator + filename;
         FileUtil.writeString(content, filePath, StandardCharsets.UTF_8);
     }
