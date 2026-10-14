@@ -145,7 +145,7 @@ public class UserController {
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest) {
         ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 1. 获取分页参数 - Page.of() 方法需要 long 参数
-        long pageNum = userQueryRequest.getCurrent();
+        long pageNum = userQueryRequest.getPageNum();
         long pageSize = userQueryRequest.getPageSize();
         // 2. 分页查询
         // 创建分页对象 - 明确分页参数

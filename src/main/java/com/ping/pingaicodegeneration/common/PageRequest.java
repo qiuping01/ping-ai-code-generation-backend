@@ -11,7 +11,7 @@ public class PageRequest {
     /**
      * 当前页号
      */
-    private int current = 1;
+    private int pageNum = 1;
 
     /**
      * 页面大小
@@ -24,7 +24,7 @@ public class PageRequest {
     private String sortField;
 
     /**
-     * 排序顺序（默认升序）
+     * 排序顺序（默认降序）
      */
     private String sortOrder = "descend";
 }
