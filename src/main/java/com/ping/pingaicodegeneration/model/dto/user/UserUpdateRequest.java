@@ -1,14 +1,19 @@
-package com.ping.pingaicodegeneration.model.dto;
+package com.ping.pingaicodegeneration.model.dto.user;
 
 import lombok.Data;
 
 import java.io.Serializable;
 
 /**
- * 用户创建请求
+ * 用户更新请求
  */
 @Data
-public class UserAddRequest implements Serializable {
+public class UserUpdateRequest implements Serializable {
+
+    /**
+     * id
+     */
+    private Long id;
 
     /**
      * 用户昵称

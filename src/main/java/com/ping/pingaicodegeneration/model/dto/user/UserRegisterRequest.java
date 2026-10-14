@@ -1,8 +1,7 @@
-package com.ping.pingaicodegeneration.model.dto;
+package com.ping.pingaicodegeneration.model.dto.user;
 
 import lombok.Data;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 /**

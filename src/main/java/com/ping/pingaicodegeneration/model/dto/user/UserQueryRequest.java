@@ -1,4 +1,4 @@
-package com.ping.pingaicodegeneration.model.dto;
+package com.ping.pingaicodegeneration.model.dto.user;
 
 import com.ping.pingaicodegeneration.common.PageRequest;
 import lombok.Data;

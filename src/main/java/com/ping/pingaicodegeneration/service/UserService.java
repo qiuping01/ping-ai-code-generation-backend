@@ -2,7 +2,7 @@ package com.ping.pingaicodegeneration.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
-import com.ping.pingaicodegeneration.model.dto.UserQueryRequest;
+import com.ping.pingaicodegeneration.model.dto.user.UserQueryRequest;
 import com.ping.pingaicodegeneration.model.entity.User;
 import com.ping.pingaicodegeneration.model.vo.LoginUserVO;
 import com.ping.pingaicodegeneration.model.vo.UserVO;

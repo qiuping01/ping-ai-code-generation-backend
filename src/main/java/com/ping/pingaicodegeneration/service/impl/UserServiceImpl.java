@@ -7,7 +7,7 @@ import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.ping.pingaicodegeneration.exception.ErrorCode;
 import com.ping.pingaicodegeneration.exception.ThrowUtils;
 import com.ping.pingaicodegeneration.mapper.UserMapper;
-import com.ping.pingaicodegeneration.model.dto.UserQueryRequest;
+import com.ping.pingaicodegeneration.model.dto.user.UserQueryRequest;
 import com.ping.pingaicodegeneration.model.entity.User;
 import com.ping.pingaicodegeneration.model.enums.UserRoleEnum;
 import com.ping.pingaicodegeneration.model.vo.LoginUserVO;

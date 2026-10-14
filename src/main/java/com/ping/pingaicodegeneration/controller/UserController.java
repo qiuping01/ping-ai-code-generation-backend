@@ -9,7 +9,7 @@ import com.ping.pingaicodegeneration.common.ResultUtils;
 import com.ping.pingaicodegeneration.constant.UserConstant;
 import com.ping.pingaicodegeneration.exception.ErrorCode;
 import com.ping.pingaicodegeneration.exception.ThrowUtils;
-import com.ping.pingaicodegeneration.model.dto.*;
+import com.ping.pingaicodegeneration.model.dto.user.*;
 import com.ping.pingaicodegeneration.model.entity.User;
 import com.ping.pingaicodegeneration.model.vo.LoginUserVO;
 import com.ping.pingaicodegeneration.model.vo.UserVO;
