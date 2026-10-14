@@ -34,7 +34,8 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveCodeStream() {
-        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("做一个程序员阿平博客，代码行数不要超过200行", CodeGenTypeEnum.MULTI_FILE);
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("做一个程序员阿平博客，代码行数不要超过200行",
+                CodeGenTypeEnum.HTML);
         // 阻塞等待所有数据收集完成
         List<String> result = codeStream.collectList().block();
         // 验证结果
