@@ -40,8 +40,9 @@ langchain4j:
     streaming-chat-model:
       base-url: https://api.deepseek.com
       model-name: deepseek-v4-pro
-      max-tokens: 8192
+      max-tokens: 65536
       log-requests: true
       log-responses: true
+#      reasoning-effort: none      # 关闭思考模式
 
 
