@@ -8,10 +8,10 @@ public class ThrowUtils {
     // 工具类提供一些静态方法，不用新建对象也能调用。
 
     /**
-     * 条件成立则抛异常
+     * 条件成立则抛出异常
      *
-     * @param condition        条件
-     * @param runtimeException 异常
+     * @param condition
+     * @param runtimeException
      */
     public static void throwIf(boolean condition, RuntimeException runtimeException) {
         if (condition) {
@@ -26,7 +26,7 @@ public class ThrowUtils {
      * @param errorCode 错误码
      */
     public static void throwIf(boolean condition, ErrorCode errorCode) {
-        throwIf(condition, new BusinessException(errorCode)); // 使用errorCode的默认消息
+        throwIf(condition, new BusinessException(errorCode));
     }
 
     /**
@@ -37,7 +37,6 @@ public class ThrowUtils {
      * @param message   错误信息
      */
     public static void throwIf(boolean condition, ErrorCode errorCode, String message) {
-        throwIf(condition, new BusinessException(errorCode, message)); // 使用自定义消息
+        throwIf(condition, new BusinessException(errorCode, message));
     }
-
 }
