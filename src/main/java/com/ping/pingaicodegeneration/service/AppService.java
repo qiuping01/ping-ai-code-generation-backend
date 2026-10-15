@@ -36,7 +36,6 @@ public interface AppService extends IService<App> {
     /**
      * 构造应用查询条件
      * 该方法根据传入的查询请求对象，构建一个QueryWrapper对象，用于数据库查询条件的设置
-
      *
      * @param appQueryRequest 应用的查询请求对象，包含查询所需的各项条件参数
      * @return QueryWrapper 构建好的查询条件对象，可用于MyBatis-Plus的查询操作
@@ -53,5 +52,14 @@ public interface AppService extends IService<App> {
      * @return 返回一个Flux<String>类型的响应流，包含生成的代码内容
      */
     Flux<String> chatToGenCode(Long appId, String userPrompt, User loginUser);
+
+    /**
+     * 部署应用
+     *
+     * @param appId     应用程序 ID
+     * @param loginUser 用户对象
+     * @return 部署 key
+     */
+    String deployApp(Long appId, User loginUser);
 
 }
