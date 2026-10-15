@@ -25,7 +25,9 @@ import com.ping.pingaicodegeneration.service.AppService;
 import com.ping.pingaicodegeneration.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,6 +46,19 @@ public class AppController {
 
     @Resource
     private UserService userService;
+
+    @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE) // 加上流式声明更加标准
+    Flux<String> chatToGenCode(@RequestParam Long appId,
+                               @RequestParam String message,
+                               HttpServletRequest request) {
+        // 校验参数
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
+        ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
+        // 获取登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 调用服务生成代码 （流式）
+        return appService.chatToGenCode(appId, message, loginUser);
+    }
 
     /**
      * 创建应用

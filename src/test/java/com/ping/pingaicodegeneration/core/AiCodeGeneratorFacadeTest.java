@@ -21,21 +21,21 @@ class AiCodeGeneratorFacadeTest {
     @Test
     void generateAndSaveCode_HTML() {
         File file = aiCodeGeneratorFacade.generateAndSaveCode
-                ("做一个程序员阿平博客，代码不超过20行", CodeGenTypeEnum.HTML);
+                ("做一个程序员阿平博客，代码不超过20行", CodeGenTypeEnum.HTML,1L);
         Assertions.assertNotNull(file);
     }
 
     @Test
     void generateAndSaveCode_MULTI() {
         File file = aiCodeGeneratorFacade.generateAndSaveCode
-                ("做一个程序员阿平博客，尽量用最少行数的代码实现", CodeGenTypeEnum.MULTI_FILE);
+                ("做一个程序员阿平博客，尽量用最少行数的代码实现", CodeGenTypeEnum.MULTI_FILE,1L);
         Assertions.assertNotNull(file);
     }
 
     @Test
     void generateAndSaveCodeStream() {
         Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("做一个程序员阿平博客，代码行数不要超过200行",
-                CodeGenTypeEnum.HTML);
+                CodeGenTypeEnum.HTML,1L);
         // 阻塞等待所有数据收集完成
         List<String> result = codeStream.collectList().block();
         // 验证结果

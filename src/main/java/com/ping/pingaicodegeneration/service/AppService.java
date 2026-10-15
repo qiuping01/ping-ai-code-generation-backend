@@ -4,7 +4,9 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.ping.pingaicodegeneration.model.dto.app.AppQueryRequest;
 import com.ping.pingaicodegeneration.model.entity.App;
+import com.ping.pingaicodegeneration.model.entity.User;
 import com.ping.pingaicodegeneration.model.vo.AppVO;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -41,5 +43,15 @@ public interface AppService extends IService<App> {
      */
     QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest);
 
+
+    /**
+     * 生成代码的聊天方法
+     *
+     * @param appId      应用ID，用于标识具体的应用
+     * @param userPrompt 用户输入的提示信息，用于生成代码的输入
+     * @param loginUser  当前登录用户信息，用于权限验证和用户上下文
+     * @return 返回一个Flux<String>类型的响应流，包含生成的代码内容
+     */
+    Flux<String> chatToGenCode(Long appId, String userPrompt, User loginUser);
 
 }
