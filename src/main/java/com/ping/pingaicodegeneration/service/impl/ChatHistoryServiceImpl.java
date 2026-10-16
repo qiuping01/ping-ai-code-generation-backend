@@ -1,8 +1,13 @@
 package com.ping.pingaicodegeneration.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.ping.pingaicodegeneration.exception.ErrorCode;
+import com.ping.pingaicodegeneration.exception.ThrowUtils;
 import com.ping.pingaicodegeneration.model.entity.ChatHistory;
 import com.ping.pingaicodegeneration.mapper.ChatHistoryMapper;
+import com.ping.pingaicodegeneration.model.enums.ChatHistoryMessageTypeEnum;
 import com.ping.pingaicodegeneration.service.ChatHistoryService;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +17,52 @@ import org.springframework.stereotype.Service;
  * @author ping
  */
 @Service
-public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory>  implements ChatHistoryService{
+public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory> implements ChatHistoryService {
 
+    /**
+     * 添加对话历史
+     *
+     * @param appId       应用ID，必须大于0
+     * @param message     消息内容，不能为空
+     * @param messageType 消息类型，不能为空
+     * @param userId      用户ID，必须大于0
+     * @return 添加成功返回true，否则返回false
+     */
+    @Override
+    public boolean addChatMessage(Long appId, String message, String messageType, Long userId) {
+        // 验证应用ID是否有效
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID不能为空");
+        // 验证消息内容是否为空
+        ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "消息内容不能为空");
+        // 验证消息类型是否为空
+        ThrowUtils.throwIf(StrUtil.isBlank(messageType), ErrorCode.PARAMS_ERROR, "消息类型不能为空");
+        // 验证用户ID是否有效
+        ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR, "用户ID不能为空");
+        // 验证消息类型是否有效
+        ChatHistoryMessageTypeEnum messageTypeEnum = ChatHistoryMessageTypeEnum.getEnumByValue(messageType);
+        ThrowUtils.throwIf(messageTypeEnum == null, ErrorCode.PARAMS_ERROR, "不支持的消息类型: " + messageType);
+        // 构建聊天历史记录对象
+        ChatHistory chatHistory = ChatHistory.builder()
+                .appId(appId)
+                .message(message)
+                .messageType(messageType)
+                .userId(userId)
+                .build();
+        // 保存聊天记录并返回结果
+        return this.save(chatHistory);
+    }
+
+    /**
+     * 根据应用 ID 删除对话历史
+     *
+     * @param appId 应用 ID
+     * @return 返回一个布尔值，表示删除是否成功
+     */
+    @Override
+    public boolean deleteByAppId(Long appId) {
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID不能为空");
+        QueryWrapper queryWrapper = QueryWrapper.create()
+                .eq("appId", appId);
+        return this.remove(queryWrapper);
+    }
 }
