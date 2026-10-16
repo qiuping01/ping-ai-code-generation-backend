@@ -1,6 +1,7 @@
 package com.ping.pingaicodegeneration.core;
 
 import com.ping.pingaicodegeneration.ai.AiCodeGeneratorService;
+import com.ping.pingaicodegeneration.ai.AiCodeGeneratorServiceFactory;
 import com.ping.pingaicodegeneration.ai.model.HtmlCodeResult;
 import com.ping.pingaicodegeneration.ai.model.MultiFileCodeResult;
 import com.ping.pingaicodegeneration.core.parser.CodeParserExecutor;
@@ -23,8 +24,7 @@ import java.io.File;
 public class AiCodeGeneratorFacade {
 
     @Resource
-    private AiCodeGeneratorService aiCodeGeneratorService;
-
+    private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
     /**
      * 统一入口：根据类型生成并保存代码（使用 appId）
      *
@@ -37,6 +37,8 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
+        // 根据 appId 获取相应的 AI 服务实例
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode(userMessage);
@@ -65,6 +67,8 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
+        // 根据 appId 获取相应的 AI 服务实例
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         // 根据不同的代码生成类型调用对应的生成方法
         return switch (codeGenTypeEnum) {
             // 当类型为HTML时，调用HTML代码生成方法
