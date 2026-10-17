@@ -1,5 +1,6 @@
 package com.ping.pingaicodegeneration.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
@@ -15,17 +16,23 @@ import com.ping.pingaicodegeneration.model.entity.User;
 import com.ping.pingaicodegeneration.model.enums.ChatHistoryMessageTypeEnum;
 import com.ping.pingaicodegeneration.service.AppService;
 import com.ping.pingaicodegeneration.service.ChatHistoryService;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 对话历史 服务层实现。
  *
  * @author ping
  */
+@Slf4j
 @Service
 public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory> implements ChatHistoryService {
 
@@ -109,6 +116,58 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
         QueryWrapper queryWrapper = this.getQueryWrapper(queryRequest);
         // 查询数据
         return this.page(Page.of(1, pageSize), queryWrapper);
+    }
+
+    /**
+     * 加载对话历史到内存
+     * <p>
+     * 惰性恢复：只有记忆中确实没有内容时才从数据库回填。记忆本身由 ChatMemoryStore 持久化，
+     * 只要没到期，Redis 里那份总比数据库更新鲜，用数据库覆盖会把缓存中的记忆整体回滚
+     *
+     * @param appId      应用 ID
+     * @param chatMemory 对话记忆
+     * @param maxCount   最大加载条数
+     * @return 加载的条数，无需加载时返回 0
+     */
+    @Override
+    public int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount) {
+        try {
+            // 记忆中已有历史（Redis 中的数据尚未过期），无需从数据库回填
+            if (CollUtil.isNotEmpty(chatMemory.messages())) {
+                log.debug("appId: {} 的对话记忆已存在，跳过从数据库加载", appId);
+                return 0;
+            }
+            // 直接构造查询条件，起始点为 1 而不是 0，用于排除最新的用户消息
+            QueryWrapper queryWrapper = QueryWrapper.create()
+                    .eq(ChatHistory::getAppId, appId)
+                    .orderBy(ChatHistory::getCreateTime, false)
+                    .limit(1, maxCount);
+            List<ChatHistory> historyList = this.list(queryWrapper);
+            if (CollUtil.isEmpty(historyList)) {
+                return 0;
+            }
+            // 反转列表，确保按时间正序（老的在前，新的在后）
+            historyList = historyList.reversed();
+            // 按时间顺序添加到记忆中
+            int loadedCount = 0;
+            // 走这里说明记忆已为空，清一次作为兜底，保证记忆与数据库完全一致
+            chatMemory.clear();
+            for (ChatHistory history : historyList) {
+                if (ChatHistoryMessageTypeEnum.USER.getValue().equals(history.getMessageType())) {
+                    chatMemory.add(UserMessage.from(history.getMessage()));
+                    loadedCount++;
+                } else if (ChatHistoryMessageTypeEnum.AI.getValue().equals(history.getMessageType())) {
+                    chatMemory.add(AiMessage.from(history.getMessage()));
+                    loadedCount++;
+                }
+            }
+            log.info("成功为 appId: {} 加载了 {} 条历史对话", appId, loadedCount);
+            return loadedCount;
+        } catch (Exception e) {
+            log.error("加载历史对话失败，appId: {}, error: {}", appId, e.getMessage(), e);
+            // 加载失败不影响系统运行，只是没有历史上下文
+            return 0;
+        }
     }
 
     /**

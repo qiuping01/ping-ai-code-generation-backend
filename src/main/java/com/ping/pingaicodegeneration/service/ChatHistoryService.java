@@ -6,6 +6,7 @@ import com.mybatisflex.core.service.IService;
 import com.ping.pingaicodegeneration.model.dto.chathistory.ChatHistoryQueryRequest;
 import com.ping.pingaicodegeneration.model.entity.ChatHistory;
 import com.ping.pingaicodegeneration.model.entity.User;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 
 import java.time.LocalDateTime;
 
@@ -48,6 +49,18 @@ public interface ChatHistoryService extends IService<ChatHistory> {
     Page<ChatHistory> listAppChatHistoryByPage(Long appId, int pageSize,
                                                LocalDateTime lastCreateTime,
                                                User loginUser);
+
+    /**
+     * 加载对话历史到内存
+     * <p>
+     * 惰性恢复：只有记忆中确实没有内容时才从数据库回填，已有记忆时直接跳过
+     *
+     * @param appId      应用 ID
+     * @param chatMemory 对话记忆
+     * @param maxCount   最大加载条数
+     * @return 加载的条数，无需加载时返回 0
+     */
+    int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount);
 
     /**
      * 获取查询包装类

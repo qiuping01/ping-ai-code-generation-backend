@@ -2,6 +2,7 @@ package com.ping.pingaicodegeneration.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.ping.pingaicodegeneration.service.ChatHistoryService;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
@@ -29,6 +30,16 @@ public class AiCodeGeneratorServiceFactory {
 
     @Resource
     private RedisChatMemoryStore redisChatMemoryStore;
+
+    @Resource
+    private ChatHistoryService chatHistoryService;
+
+    /**
+     * 对话记忆保留的最大消息条数（用户消息与 AI 回复各算一条）
+     * <p>
+     * 记忆窗口的大小和从数据库回填的条数必须一致，否则窗口填不满
+     */
+    private static final int MAX_MESSAGES = 20;
 
     /**
      * AI 服务实例缓存
@@ -77,8 +88,10 @@ public class AiCodeGeneratorServiceFactory {
                 .builder()
                 .id(appId)
                 .chatMemoryStore(redisChatMemoryStore)
-                .maxMessages(20)
+                .maxMessages(MAX_MESSAGES)
                 .build();
+        // 惰性恢复：仅当 Redis 中的记忆已过期（取不到消息）时，才从数据库回填对话历史
+        chatHistoryService.loadChatHistoryToMemory(appId, chatMemory, MAX_MESSAGES);
         return AiServices.builder(AiCodeGeneratorService.class)
                 .chatModel(chatModel)
                 .streamingChatModel(streamingChatModel)
