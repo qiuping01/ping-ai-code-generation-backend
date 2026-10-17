@@ -25,6 +25,7 @@ public class AiCodeGeneratorFacade {
 
     @Resource
     private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+
     /**
      * 统一入口：根据类型生成并保存代码（使用 appId）
      *
@@ -68,7 +69,7 @@ public class AiCodeGeneratorFacade {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
         // 根据 appId 获取相应的 AI 服务实例
-        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId, codeGenTypeEnum);
         // 根据不同的代码生成类型调用对应的生成方法
         return switch (codeGenTypeEnum) {
             // 当类型为HTML时，调用HTML代码生成方法
@@ -79,6 +80,11 @@ public class AiCodeGeneratorFacade {
             // 当类型为MULTI_FILE时，调用多文件代码生成方法
             case MULTI_FILE -> {
                 Flux<String> result = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
+                yield processCodeStream(result, CodeGenTypeEnum.MULTI_FILE, appId);
+            }
+            // 当类型为VUE时，调用Vue代码生成方法
+            case VUE_PROJECT -> {
+                Flux<String> result = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
                 yield processCodeStream(result, CodeGenTypeEnum.MULTI_FILE, appId);
             }
             // 默认情况，抛出系统错误异常
