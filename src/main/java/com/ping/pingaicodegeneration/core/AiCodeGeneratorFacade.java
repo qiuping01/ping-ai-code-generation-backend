@@ -1,14 +1,21 @@
 package com.ping.pingaicodegeneration.core;
 
+import cn.hutool.json.JSONUtil;
 import com.ping.pingaicodegeneration.ai.AiCodeGeneratorService;
 import com.ping.pingaicodegeneration.ai.AiCodeGeneratorServiceFactory;
 import com.ping.pingaicodegeneration.ai.model.HtmlCodeResult;
 import com.ping.pingaicodegeneration.ai.model.MultiFileCodeResult;
+import com.ping.pingaicodegeneration.ai.model.message.AiResponseMessage;
+import com.ping.pingaicodegeneration.ai.model.message.ToolExecutedMessage;
+import com.ping.pingaicodegeneration.ai.model.message.ToolRequestMessage;
 import com.ping.pingaicodegeneration.core.parser.CodeParserExecutor;
 import com.ping.pingaicodegeneration.core.save.CodeFileSaveExecutor;
 import com.ping.pingaicodegeneration.exception.BusinessException;
 import com.ping.pingaicodegeneration.exception.ErrorCode;
 import com.ping.pingaicodegeneration.model.enums.CodeGenTypeEnum;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.service.TokenStream;
+import dev.langchain4j.service.tool.ToolExecution;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -84,8 +91,8 @@ public class AiCodeGeneratorFacade {
             }
             // 当类型为VUE时，调用Vue代码生成方法
             case VUE_PROJECT -> {
-                Flux<String> result = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
-                yield processCodeStream(result, CodeGenTypeEnum.MULTI_FILE, appId);
+                TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
+                yield processTokenStream(tokenStream);
             }
             // 默认情况，抛出系统错误异常
             default -> {
@@ -93,6 +100,38 @@ public class AiCodeGeneratorFacade {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, errorMsg);
             }
         };
+    }
+
+    /**
+     * 将 TokenStream 转换为 Flux<String>，并传递工具调用信息
+     *
+     * @param tokenStream TokenStream 对象
+     * @return Flux<String> 流式响应
+     */
+    private Flux<String> processTokenStream(TokenStream tokenStream) {
+        return Flux.create(sink -> {
+            tokenStream.onPartialResponse((String partialResponse) -> {
+                        AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
+                        sink.next(JSONUtil.toJsonStr(aiResponseMessage));
+                    })
+                    .onPartialToolExecutionRequest((index, toolExecutionRequest) -> {
+                        ToolRequestMessage toolRequestMessage = new ToolRequestMessage(toolExecutionRequest);
+                        sink.next(JSONUtil.toJsonStr(toolRequestMessage));
+                    })
+                    .onToolExecuted((ToolExecution toolExecution) -> {
+                        ToolExecutedMessage toolExecutedMessage = new ToolExecutedMessage(toolExecution);
+                        sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
+                    })
+                    .onCompleteResponse((ChatResponse response) -> {
+                        sink.complete();
+                    })
+                    .onError((Throwable error) -> {
+                        error.printStackTrace();
+                        sink.error(error);
+                    })
+                    // 开始监听
+                    .start();
+        });
     }
 
     /**
