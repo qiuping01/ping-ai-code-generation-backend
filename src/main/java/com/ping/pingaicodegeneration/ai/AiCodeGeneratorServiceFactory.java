@@ -2,7 +2,7 @@ package com.ping.pingaicodegeneration.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.ping.pingaicodegeneration.ai.tools.FileWriteTool;
+import com.ping.pingaicodegeneration.ai.tools.*;
 import com.ping.pingaicodegeneration.exception.BusinessException;
 import com.ping.pingaicodegeneration.exception.ErrorCode;
 import com.ping.pingaicodegeneration.model.enums.CodeGenTypeEnum;
@@ -124,7 +124,13 @@ public class AiCodeGeneratorServiceFactory {
                     .chatModel(chatModel)
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
-                    .tools(new FileWriteTool())
+                    .tools(
+                            new FileWriteTool(),
+                            new FileReadTool(),
+                            new FileModifyTool(),
+                            new FileDirReadTool(),
+                            new FileDeleteTool()
+                    )
                     // 处理工具调用幻觉问题
                     .hallucinatedToolNameStrategy(toolExecutionRequest ->
                             ToolExecutionResultMessage.from(toolExecutionRequest,
