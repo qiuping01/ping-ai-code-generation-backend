@@ -42,6 +42,9 @@ public class AiCodeGeneratorServiceFactory {
     @Resource
     private ChatHistoryService chatHistoryService;
 
+    @Resource
+    private ToolManager toolManager;
+
     /**
      * 对话记忆保留的最大消息条数（用户消息与 AI 回复各算一条）
      * <p>
@@ -124,13 +127,7 @@ public class AiCodeGeneratorServiceFactory {
                     .chatModel(chatModel)
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
-                    .tools(
-                            new FileWriteTool(),
-                            new FileReadTool(),
-                            new FileModifyTool(),
-                            new FileDirReadTool(),
-                            new FileDeleteTool()
-                    )
+                    .tools(toolManager.getAllTools())
                     // 处理工具调用幻觉问题
                     .hallucinatedToolNameStrategy(toolExecutionRequest ->
                             ToolExecutionResultMessage.from(toolExecutionRequest,
