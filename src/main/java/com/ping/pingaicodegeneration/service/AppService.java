@@ -2,6 +2,7 @@ package com.ping.pingaicodegeneration.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import com.ping.pingaicodegeneration.model.dto.app.AppAddRequest;
 import com.ping.pingaicodegeneration.model.dto.app.AppQueryRequest;
 import com.ping.pingaicodegeneration.model.entity.App;
 import com.ping.pingaicodegeneration.model.entity.User;
@@ -16,6 +17,8 @@ import java.util.List;
  * @author ping
  */
 public interface AppService extends IService<App> {
+
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
 
     /**
      * 异步生成应用截图并更新封面

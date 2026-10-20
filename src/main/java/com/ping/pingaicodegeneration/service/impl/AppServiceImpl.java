@@ -7,6 +7,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.ping.pingaicodegeneration.ai.AiCodeGenTypeRoutingService;
 import com.ping.pingaicodegeneration.constant.AppConstant;
 import com.ping.pingaicodegeneration.core.AiCodeGeneratorFacade;
 import com.ping.pingaicodegeneration.core.builder.VueProjectBuilder;
@@ -14,6 +15,7 @@ import com.ping.pingaicodegeneration.core.handler.StreamHandlerExecutor;
 import com.ping.pingaicodegeneration.exception.BusinessException;
 import com.ping.pingaicodegeneration.exception.ErrorCode;
 import com.ping.pingaicodegeneration.exception.ThrowUtils;
+import com.ping.pingaicodegeneration.model.dto.app.AppAddRequest;
 import com.ping.pingaicodegeneration.model.dto.app.AppQueryRequest;
 import com.ping.pingaicodegeneration.model.entity.App;
 import com.ping.pingaicodegeneration.mapper.AppMapper;
@@ -66,6 +68,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Resource
     private ScreenshotService screenshotService;
+
+    @Resource
+    private AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService;
 
     /**
      * 重写方法，用于根据应用ID、用户提示和登录用户生成代码响应
@@ -166,6 +171,26 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         return appDeployUrl;
     }
 
+    @Override
+    public Long createApp(AppAddRequest appAddRequest, User loginUser) {
+        ThrowUtils.throwIf(appAddRequest == null, ErrorCode.PARAMS_ERROR);
+        // 参数校验
+        String initPrompt = appAddRequest.getInitPrompt();
+        ThrowUtils.throwIf(StrUtil.isBlank(initPrompt), ErrorCode.PARAMS_ERROR, "初始化 prompt 不能为空");
+        // 构造入库对象
+        App app = new App();
+        BeanUtil.copyProperties(appAddRequest, app);
+        app.setUserId(loginUser.getId());
+        // 应用名称暂时为 initPrompt 前 12 位
+        app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
+        // 改为 AI 智能路由，智能选择代码生成类型
+        CodeGenTypeEnum codeGenTypeEnum = aiCodeGenTypeRoutingService.routeCodeGenType(initPrompt);
+        app.setCodeGenType(codeGenTypeEnum.getValue());
+        // 插入数据库
+        boolean result = this.save(app);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return app.getId();
+    }
     /**
      * 异步生成应用截图并更新封面
      *
