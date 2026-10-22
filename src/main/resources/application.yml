@@ -62,4 +62,11 @@ langchain4j:
       log-responses: true
 #      reasoning-effort: none      # 关闭思考模式
 
+# Mermaid 架构图生成（依赖全局安装的 mmdc）
+mermaid:
+  puppeteer:
+    # mmdc 底层 Puppeteer 使用的浏览器路径，留空则使用 Puppeteer 缓存中下载的 Chrome
+    # 机器相关的路径建议写在 application-local.yml 中覆盖，例如：
+    # executable-path: "C:/Program Files/Google/Chrome/Application/chrome.exe"
+    executable-path:
 
