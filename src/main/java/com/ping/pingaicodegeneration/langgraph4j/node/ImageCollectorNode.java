@@ -27,12 +27,12 @@ public class ImageCollectorNode {
                 ImageResource.builder()
                     .category(ImageCategoryEnum.CONTENT)
                     .description("假数据图片1")
-                    .url("https://www.codefather.cn/logo.png")
+                    .url("https://placehold.co/200x200")
                     .build(),
                 ImageResource.builder()
                     .category(ImageCategoryEnum.LOGO)
                     .description("假数据图片2")
-                    .url("https://www.codefather.cn/logo.png")
+                    .url("https://placehold.co/200x200")
                     .build()
             );
             
