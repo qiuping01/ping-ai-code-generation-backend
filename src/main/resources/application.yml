@@ -56,11 +56,26 @@ langchain4j:
       max-retries: 1
     streaming-chat-model:
       base-url: https://api.deepseek.com
-      model-name: deepseek-v4-pro
+      model-name: deepseek-flash
       max-tokens: 65536
       log-requests: true
       log-responses: true
 #      reasoning-effort: none      # 关闭思考模式
+    # 推理 AI 模型配置（用于复杂的推理任务）
+    reasoning-streaming-chat-model:
+      base-url: https://api.deepseek.com
+      model-name: deepseek-flash
+      max-tokens: 32768
+      # 随机值，让大模型生成的内容更加可靠稳定
+      temperature: 0.1
+      log-requests: true
+      log-responses: true
+    # 智能路由 AI 模型配置（用于简单的分类任务）
+    routing-chat-model:
+      base-url: https://api.deepseek.com
+      model-name: deepseek-flash
+      log-requests: true
+      log-responses: true
 
 # Mermaid 架构图生成（依赖全局安装的 mmdc）
 mermaid:
