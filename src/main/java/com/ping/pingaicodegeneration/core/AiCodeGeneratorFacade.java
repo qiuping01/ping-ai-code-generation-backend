@@ -8,6 +8,8 @@ import com.ping.pingaicodegeneration.ai.model.MultiFileCodeResult;
 import com.ping.pingaicodegeneration.ai.model.message.AiResponseMessage;
 import com.ping.pingaicodegeneration.ai.model.message.ToolExecutedMessage;
 import com.ping.pingaicodegeneration.ai.model.message.ToolRequestMessage;
+import com.ping.pingaicodegeneration.constant.AppConstant;
+import com.ping.pingaicodegeneration.core.builder.VueProjectBuilder;
 import com.ping.pingaicodegeneration.core.parser.CodeParserExecutor;
 import com.ping.pingaicodegeneration.core.save.CodeFileSaveExecutor;
 import com.ping.pingaicodegeneration.exception.BusinessException;
@@ -32,6 +34,9 @@ public class AiCodeGeneratorFacade {
 
     @Resource
     private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+
+    @Resource
+    private VueProjectBuilder vueProjectBuilder;
 
     /**
      * 统一入口：根据类型生成并保存代码（使用 appId）
@@ -92,7 +97,7 @@ public class AiCodeGeneratorFacade {
             // 当类型为VUE时，调用Vue代码生成方法
             case VUE_PROJECT -> {
                 TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
-                yield processTokenStream(tokenStream);
+                yield processTokenStream(tokenStream, appId);
             }
             // 默认情况，抛出系统错误异常
             default -> {
@@ -108,7 +113,7 @@ public class AiCodeGeneratorFacade {
      * @param tokenStream TokenStream 对象
      * @return Flux<String> 流式响应
      */
-    private Flux<String> processTokenStream(TokenStream tokenStream) {
+    private Flux<String> processTokenStream(TokenStream tokenStream, Long appId) {
         return Flux.create(sink -> {
             tokenStream.onPartialResponse((String partialResponse) -> {
                         AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
@@ -123,6 +128,9 @@ public class AiCodeGeneratorFacade {
                         sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
                     })
                     .onCompleteResponse((ChatResponse response) -> {
+                        // 同步构造 Vue 项目，确保预览时项目已就绪
+                        String projectPath = AppConstant.CODE_OUTPUT_ROOT_DIR + "/vue_project_" + appId;
+                        vueProjectBuilder.buildProject(projectPath);
                         sink.complete();
                     })
                     .onError((Throwable error) -> {
