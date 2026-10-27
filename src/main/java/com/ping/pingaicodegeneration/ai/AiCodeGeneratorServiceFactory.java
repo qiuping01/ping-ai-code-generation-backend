@@ -125,31 +125,32 @@ public class AiCodeGeneratorServiceFactory {
                 StreamingChatModel reasoningStreamingChatModel =
                         SpringContextUtil.getBean("reasoningStreamingChatModelPrototype", StreamingChatModel.class);
                 yield AiServices.builder(AiCodeGeneratorService.class)
-                    .chatModel(chatModel)
-                    .streamingChatModel(reasoningStreamingChatModel)
-                    .chatMemoryProvider(memoryId -> chatMemory)
-                    .tools(toolManager.getAllTools())
-                    // 处理工具调用幻觉问题
-                    .hallucinatedToolNameStrategy(toolExecutionRequest ->
-                            ToolExecutionResultMessage.from(toolExecutionRequest,
-                                    "Error: there is no tool called " + toolExecutionRequest.name()
-                            ))
-                    .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
+                        .chatModel(chatModel)
+                        .streamingChatModel(reasoningStreamingChatModel)
+                        .chatMemoryProvider(memoryId -> chatMemory)
+                        .tools(toolManager.getAllTools())
+                        // 处理工具调用幻觉问题
+                        .hallucinatedToolNameStrategy(toolExecutionRequest ->
+                                ToolExecutionResultMessage.from(toolExecutionRequest,
+                                        "Error: there is no tool called " + toolExecutionRequest.name())
+                        )
+                        .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
 //                    .outputGuardrails(new RetryOutputGuardrail()) // 添加输出护轨
-                    .build();
+                        .maxSequentialToolsInvocations(20)  // 最多连续调用 20 次工具
+                        .build();
             }
             // HTML 和多文件生成使用默认模型
             case HTML, MULTI_FILE -> {
                 // 使用多例模式的 StreamingChatModel 解决并发问题
                 StreamingChatModel openAiStreamingChatModel =
                         SpringContextUtil.getBean("streamingChatModelPrototype", StreamingChatModel.class);
-                yield  AiServices.builder(AiCodeGeneratorService.class)
-                    .chatModel(chatModel)
-                    .streamingChatModel(openAiStreamingChatModel)
-                    .chatMemory(chatMemory)
-                    .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
+                yield AiServices.builder(AiCodeGeneratorService.class)
+                        .chatModel(chatModel)
+                        .streamingChatModel(openAiStreamingChatModel)
+                        .chatMemory(chatMemory)
+                        .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
 //                    .outputGuardrails(new RetryOutputGuardrail()) // 添加输出护轨
-                    .build();
+                        .build();
             }
             default ->
                     throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的代码生成类型" + codeGenType.getValue());
