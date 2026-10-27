@@ -3,6 +3,7 @@ package com.ping.pingaicodegeneration.ai;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ping.pingaicodegeneration.ai.guardrail.PromptSafetyInputGuardrail;
+import com.ping.pingaicodegeneration.ai.guardrail.RetryOutputGuardrail;
 import com.ping.pingaicodegeneration.ai.tools.*;
 import com.ping.pingaicodegeneration.exception.BusinessException;
 import com.ping.pingaicodegeneration.exception.ErrorCode;
@@ -134,6 +135,7 @@ public class AiCodeGeneratorServiceFactory {
                                     "Error: there is no tool called " + toolExecutionRequest.name()
                             ))
                     .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
+//                    .outputGuardrails(new RetryOutputGuardrail()) // 添加输出护轨
                     .build();
             }
             // HTML 和多文件生成使用默认模型
@@ -146,6 +148,7 @@ public class AiCodeGeneratorServiceFactory {
                     .streamingChatModel(openAiStreamingChatModel)
                     .chatMemory(chatMemory)
                     .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
+//                    .outputGuardrails(new RetryOutputGuardrail()) // 添加输出护轨
                     .build();
             }
             default ->
