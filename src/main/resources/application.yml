@@ -72,8 +72,9 @@ langchain4j:
       log-responses: true
     # 智能路由 AI 模型配置（用于简单的分类任务）
     routing-chat-model:
-      base-url: https://api.deepseek.com
-      model-name: deepseek-flash
+      base-url: https://llm-zjszt8gld3y1wc75.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+      model-name: tongyi-xiaomi-analysis-flash
+      max-tokens: 100
       log-requests: true
       log-responses: true
 
