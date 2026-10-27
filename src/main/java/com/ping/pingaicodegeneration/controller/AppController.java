@@ -20,6 +20,8 @@ import com.ping.pingaicodegeneration.model.entity.App;
 import com.ping.pingaicodegeneration.model.entity.User;
 import com.ping.pingaicodegeneration.model.enums.CodeGenTypeEnum;
 import com.ping.pingaicodegeneration.model.vo.AppVO;
+import com.ping.pingaicodegeneration.ratelimter.annotation.RateLimit;
+import com.ping.pingaicodegeneration.ratelimter.enums.RateLimitType;
 import com.ping.pingaicodegeneration.service.AppService;
 import com.ping.pingaicodegeneration.service.ProjectDownloadService;
 import com.ping.pingaicodegeneration.service.UserService;
@@ -92,9 +94,10 @@ public class AppController {
     }
 
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE) // 加上流式声明更加标准
+    @RateLimit(rate = 5, rateInterval = 60, message = "AI 对话请求过于频繁，请稍后再试")
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
-                               @RequestParam String message,
-                               HttpServletRequest request) {
+                                                       @RequestParam String message,
+                                                       HttpServletRequest request) {
         // 校验参数
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
         ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
@@ -216,7 +219,7 @@ public class AppController {
     /**
      * 根据 id 获取应用详情
      *
-     * @param id      应用 id
+     * @param id 应用 id
      * @return 应用详情
      */
     @GetMapping("/get/vo")
