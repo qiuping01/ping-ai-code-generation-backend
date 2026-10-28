@@ -86,3 +86,12 @@ mermaid:
     # executable-path: "C:/Program Files/Google/Chrome/Application/chrome.exe"
     executable-path:
 
+# 监控
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
