@@ -33,3 +33,5 @@ build/
 .vscode/
 /src/main/resources/application-local.yml
 /tmp/
+# 本地下载的监控 agent 及其运行日志
+/src/main/resources/tools/

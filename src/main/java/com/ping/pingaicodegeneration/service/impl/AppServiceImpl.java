@@ -25,6 +25,8 @@ import com.ping.pingaicodegeneration.model.enums.ChatHistoryMessageTypeEnum;
 import com.ping.pingaicodegeneration.model.enums.CodeGenTypeEnum;
 import com.ping.pingaicodegeneration.model.vo.AppVO;
 import com.ping.pingaicodegeneration.model.vo.UserVO;
+import com.ping.pingaicodegeneration.monitor.MonitorContext;
+import com.ping.pingaicodegeneration.monitor.MonitorContextHolder;
 import com.ping.pingaicodegeneration.service.AppService;
 import com.ping.pingaicodegeneration.service.ChatHistoryService;
 import com.ping.pingaicodegeneration.service.ScreenshotService;
@@ -98,10 +100,20 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         // 5. 在调用 AI 前插入用户消息到数据库中
         String userType = ChatHistoryMessageTypeEnum.USER.getValue();
         chatHistoryService.addChatMessage(appId, userPrompt, userType, loginUser.getId());
-        // 6. 调用 AI 生成代码
+        // 6. 设置监控上下文（用戶 ID 和应用 ID）
+        MonitorContext monitorContext = MonitorContext.builder()
+                .userId(loginUser.getId().toString())
+                .appId(appId.toString())
+                .build();
+        MonitorContextHolder.setContext(monitorContext);
+        // 7. 调用 AI 生成代码
         Flux<String> codeStream= aiCodeGeneratorFacade.generateAndSaveCodeStream(userPrompt, codeGenTypeEnum, appId);
-        // 7. 收集AI响应内容并在完成后记录到对话历史
-        return streamHandlerExecutor.doExecute(codeStream, chatHistoryService,appId,loginUser,codeGenTypeEnum);
+        // 8. 收集AI响应内容并在完成后记录到对话历史
+        return streamHandlerExecutor.doExecute(codeStream, chatHistoryService,appId,loginUser,codeGenTypeEnum)
+                .doFinally(signalType -> {
+                    // 流结束时清理（无论成功/失败/取消），移除监控上下文
+                    MonitorContextHolder.clearContext();
+                });
     }
 
     /**
