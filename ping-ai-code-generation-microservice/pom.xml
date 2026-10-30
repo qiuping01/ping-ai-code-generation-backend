@@ -100,6 +100,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
                 <configuration>
+                    <!-- 关键：使用 release 21 替代 source/target -->
+                    <release>21</release>
                     <parameters>true</parameters>
                 </configuration>
             </plugin>
