@@ -37,3 +37,4 @@ ping-ai-code-generation-microservice/ping-ai-code-app/src/main/resources/applica
 /tmp/
 # 本地下载的监控 agent 及其运行日志
 /src/main/resources/tools/
+/ping-ai-code-generation-microservice/ping-ai-code-screenshot/src/main/resources/application-local.yml

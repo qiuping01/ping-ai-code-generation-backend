@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: ping-ai-code-screenshot
+  # session 配置
+  profiles:
+    active: local
+server:
+  port: 8127
+  servlet:
+    context-path: /api
+# springdoc-openapi
+springdoc:
+  group-configs:
+    - group: 'default'
+      packages-to-scan: com.ping.pingaicodegeneration.controller
+# knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+# 对象存储配置（需要从腾讯云获取）- 使用本地配置
