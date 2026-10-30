@@ -32,6 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 /src/main/resources/application-local.yml
+# 各微服务模块的本地敏感配置
+ping-ai-code-generation-microservice/ping-ai-code-app/src/main/resources/application-local.yml
 /tmp/
 # 本地下载的监控 agent 及其运行日志
 /src/main/resources/tools/

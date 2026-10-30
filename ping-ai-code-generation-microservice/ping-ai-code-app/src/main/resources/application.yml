@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: ping-ai-code-app
+  # session 配置
+  session:
+    store-type: redis
+    # session 30 天过期
+    timeout: 2592000
+  # mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ping_ai_code_generation
+    username: root
+    password: 123456
+  # redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      ttl: 3600
+      database: 2
+  profiles:
+    active: local
+server:
+  port: 8125
+  servlet:
+    context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 2592000
+# springdoc-openapi
+springdoc:
+  group-configs:
+    - group: 'default'
+      packages-to-scan: com.ping.pingaicodegeneration.controller
+# knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+# langchain4j
+# 注意：api-key 等敏感信息放在 application-local.yml（已 gitignore），本地开发需自行创建
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://api.deepseek.com
+      model-name: deepseek-flash
+      log-requests: true
+      log-responses: true
+      # 结构化输出
+      max-tokens: 8192
+#      strict-json-schema: true
+#      response-format: json_object
+      max-retries: 1
+    streaming-chat-model:
+      base-url: https://api.deepseek.com
+      model-name: deepseek-flash
+      max-tokens: 65536
+      log-requests: true
+      log-responses: true
+#      reasoning-effort: none      # 关闭思考模式
+    # 推理 AI 模型配置（用于复杂的推理任务）
+    reasoning-streaming-chat-model:
+      base-url: https://api.deepseek.com
+      model-name: deepseek-flash
+      max-tokens: 32768
+      # 随机值，让大模型生成的内容更加可靠稳定
+      temperature: 0.1
+      log-requests: true
+      log-responses: true
+    # 智能路由 AI 模型配置（用于简单的分类任务）
+    routing-chat-model:
+      base-url: https://llm-zjszt8gld3y1wc75.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+      model-name: tongyi-xiaomi-analysis-flash
+      max-tokens: 100
+      log-requests: true
+      log-responses: true
